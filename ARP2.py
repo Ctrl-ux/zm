@@ -54,9 +54,9 @@ def main():
             # 检查目标设备的 MAC 地址是否被更改
             observed_mac = get_mac(target_ip)
             if observed_mac != gateway_mac:
-                print(f"[INFO] 目标设备的 MAC 地址已被更改: {observed_mac}")
+                print(f"[INFO] 111111111 {observed_mac}")
             else:
-                print(f"[INFO] 目标设备的 MAC 地址未更改: {observed_mac}")
+                print(f"[INFO] 000000{observed_mac}")
 
             time.sleep(2)  # 每隔 2 秒发送一次
 
