@@ -86,7 +86,7 @@ def save_modbus_data(modbus_info, file_path):
 def main():
     # 配置相关信息
     target_ip = "192.168.88.131"  # 替换为目标设备 IP
-    gateway_ip = "192.168.88.2"   # 替换为网关 IP
+    gateway_ip = "192.168.88.134"   # 替换为网关 IP
 
     # 自动选择活动接口
     iface = conf.iface  # 使用 Scapy 自动选择活动的网络接口
