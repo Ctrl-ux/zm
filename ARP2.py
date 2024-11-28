@@ -37,7 +37,13 @@ def main():
     # 配置相关信息
     target_ip = "192.168.88.131"  # 替换为目标设备 IP
     gateway_ip = "192.168.88.2"   # 替换为网关 IP
-    iface = None  # 自动选择网络接口
+
+    # 自动选择活动接口
+    iface = conf.iface  # 使用 Scapy 自动选择活动的网络接口
+
+    if iface is None:
+        print("[ERROR] 未找到有效的网络接口")
+        return
 
     # 获取 MAC 地址
     attacker_mac = get_if_hwaddr(iface)  # 本机 MAC 地址
