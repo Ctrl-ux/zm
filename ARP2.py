@@ -35,9 +35,9 @@ def get_mac(ip):
 
 def main():
     # 配置相关信息
-    target_ip = "10.2.0.195"  # 替换为目标设备 IP
-    gateway_ip = "10.2.0.1"   # 替换为网关 IP
-    iface = "eth0"            # 替换为攻击设备的网卡名称
+    target_ip = "192.168.88.131"  # 替换为目标设备 IP
+    gateway_ip = "192.168.88.2"   # 替换为网关 IP
+    iface = "ens33"            # 替换为攻击设备的网卡名称
 
     # 获取 MAC 地址
     attacker_mac = get_if_hwaddr(iface)  # 本机 MAC 地址
