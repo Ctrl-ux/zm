@@ -85,7 +85,12 @@ def packet_callback(packet):
 
                     # 输出新的 IP 数据包的 16 进制
                     print(f"新的 IP 数据包 (16 进制): {binascii.hexlify(bytes(new_ip)).decode()}")
-
+                    if ip.dst == "10.0.0.138":
+                        target_mac = getmacbyip("10.0.0.138")  # 获取 10.0.0.138 的 MAC 地址
+                    elif ip.dst == "10.2.0.199":
+                        target_mac = getmacbyip("10.0.0.1")  # 获取 10.0.0.1 的 MAC 地址
+                    else:
+                        target_mac = getmacbyip(ip.dst)  # 默认获取 ip.dst 的 MAC 地址
                     # 获取目标 MAC 地址
                     target_mac = getmacbyip(ip.dst)  # 根据目标 IP 获取 MAC 地址
                     if target_mac:
@@ -100,6 +105,12 @@ def packet_callback(packet):
                     # 如果 TCP 数据部分为空，直接使用现有的 IP 和 TCP 数据包
                     print("[INFO] TCP 数据部分为空，可能是控制包，直接发送原始包")
 
+                    if ip.dst == "10.0.0.138":
+                        target_mac = getmacbyip("10.0.0.138")  # 获取 10.0.0.138 的 MAC 地址
+                    elif ip.dst == "10.2.0.199":
+                        target_mac = getmacbyip("10.0.0.1")  # 获取 10.0.0.1 的 MAC 地址
+                    else:
+                        target_mac = getmacbyip(ip.dst)  # 默认获取 ip.dst 的 MAC 地址
                     # 获取目标 MAC 地址
                     target_mac = getmacbyip(ip.dst)
                     if target_mac:
