@@ -133,8 +133,8 @@ def packet_callback(packet):
 def main():
     # 配置相关信息
     global target_ip, gateway_ip
-    target_ip = "192.168.88.138"  # 替换为目标设备 IP
-    gateway_ip = "192.168.88.134"  # 替换为网关 IP
+    target_ip = "10.0.0.138"  # 替换为目标设备 IP
+    gateway_ip = "10.0.0.1"  # 替换为网关 IP
 
     # 自动选择活动接口
     iface = conf.iface  # 使用 Scapy 自动选择活动的网络接口
