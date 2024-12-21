@@ -145,8 +145,11 @@ def main():
         target=lambda: sniff(iface=iface, filter=filter, prn=packet_callback, store=False))
     capture_thread.daemon = True  # 设置为守护线程，这样主线程退出时它也会自动结束
     capture_thread.start()
-
-
+    try:
+        while True:
+            pass  # 这里可以加入其他逻辑，例如监控状态
+    except KeyboardInterrupt:
+        print("[INFO] 捕获到退出信号，停止监听")
 
 if __name__ == "__main__":
     main()
