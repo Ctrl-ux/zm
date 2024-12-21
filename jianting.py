@@ -13,8 +13,8 @@ def packet_callback(packet):
         tcp_flags = packet[TCP].flags
 
         # 打印捕获到的 TCP 包的详细信息
-        print(f"[INFO] 捕获到 TCP 数据包: {ip_src} -> {ip_dst} | TCP {tcp_sport} -> {tcp_dport}")
-        print(f"       序列号: {tcp_seq}, 确认号: {tcp_ack}, TCP 标志: {tcp_flags}")
+        print(f"[INFO] 捕获到 TCP shujubao: {ip_src} -> {ip_dst} | TCP {tcp_sport} -> {tcp_dport}")
+        print(f"       xuliehao: {tcp_seq}, queren: {tcp_ack}, TCP 标志: {tcp_flags}")
 
 # 设置网卡接口，这里假设网卡名为 'ens33'，你可以根据你的系统修改
 interface = "eth0"
