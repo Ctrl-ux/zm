@@ -66,14 +66,14 @@ def packet_callback(packet):
                                   window=tcp.window, chksum=None)  # 复制 TCP 头部
 
                     # 输出新的 IP 数据包的 16 进制
-                    if ip.src == "192.168.103.140":
+                    if ip.src == "10.0.0.85":
                         target_mac = getmacbyip("10.0.0.1")  # 获取 10.0.0.138 的 MAC 地址
                         new_ip = IP(src="10.0.0.138", dst="10.2.0.199")  # 新的 IP 数据包
                         # 组合新的 IP 数据包和 TCP 数据包
                         new_ip = new_ip / new_tcp / tcp.payload
                     elif ip.src == "10.2.0.199":
-                        target_mac = getmacbyip("192.168.103.140")  # 获取 10.0.0.138 的 MAC 地址
-                        new_ip = IP(src="10.0.0.138", dst="192.168.103.140")  # 新的 IP 数据包
+                        target_mac = getmacbyip("10.0.0.85")  # 获取 10.0.0.138 的 MAC 地址
+                        new_ip = IP(src="10.0.0.138", dst="10.0.0.85")  # 新的 IP 数据包
                         # 组合新的 IP 数据包和 TCP 数据包
                         new_ip = new_ip / new_tcp / tcp.payload
                     else:
@@ -95,14 +95,14 @@ def packet_callback(packet):
                                   window=tcp.window, chksum=None)  # 复制 TCP 头部
 
                     # 输出新的 IP 数据包的 16 进制
-                    if ip.src == "192.168.103.140":
+                    if ip.src == "10.0.0.85":
                         target_mac = getmacbyip("10.0.0.1")  # 获取 10.0.0.138 的 MAC 地址
                         new_ip = IP(src="10.0.0.138", dst="10.2.0.199")  # 新的 IP 数据包
                         # 组合新的 IP 数据包和 TCP 数据包
                         new_ip = new_ip / new_tcp / tcp.payload
                     elif ip.src == "10.2.0.199":
-                        target_mac = getmacbyip("192.168.103.140")  # 获取 10.0.0.138 的 MAC 地址
-                        new_ip = IP(src="10.0.0.138", dst="192.168.103.140")  # 新的 IP 数据包
+                        target_mac = getmacbyip("10.0.0.85")  # 获取 10.0.0.138 的 MAC 地址
+                        new_ip = IP(src="10.0.0.138", dst="10.0.0.85")  # 新的 IP 数据包
                         # 组合新的 IP 数据包和 TCP 数据包
                         new_ip = new_ip / new_tcp / tcp.payload
                     else:
