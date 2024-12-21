@@ -17,7 +17,7 @@ def packet_callback(packet):
         print(f"       序列号: {tcp_seq}, 确认号: {tcp_ack}, TCP 标志: {tcp_flags}")
 
 # 设置网卡接口，这里假设网卡名为 'ens33'，你可以根据你的系统修改
-interface = "ens36"
+interface = "eth0"
 
 # 启动数据包捕获，过滤条件为所有的 TCP 数据包
 print("[INFO] 正在捕获 TCP 数据包...")
