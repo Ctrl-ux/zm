@@ -92,7 +92,6 @@ def packet_callback(packet):
                     else:
                         target_mac = getmacbyip(ip.dst)  # 默认获取 ip.dst 的 MAC 地址
                     # 获取目标 MAC 地址
-                    target_mac = getmacbyip(ip.dst)  # 根据目标 IP 获取 MAC 地址
                     if target_mac:
                         print(f"[INFO] 目标 MAC 地址: {target_mac}")
                         # 获取网络接口并发送新的数据包
@@ -104,7 +103,13 @@ def packet_callback(packet):
                 else:
                     # 如果 TCP 数据部分为空，直接使用现有的 IP 和 TCP 数据包
                     print("[INFO] TCP 数据部分为空，可能是控制包，直接发送原始包")
+                    new_tcp = TCP(sport=tcp.sport, dport=tcp.dport, seq=tcp.seq, ack=tcp.ack, flags=tcp.flags,
+                                  window=tcp.window, chksum=None)  # 复制 TCP 头部
+                    new_ip = IP(src=ip.src, dst=ip.dst)  # 新的 IP 数据包
 
+                    # 组合新的 IP 数据包和 TCP 数据包
+                    new_ip = new_ip / new_tcp / tcp.payload
+                    print(f"新的 IP 数据包 (16 进制): {binascii.hexlify(bytes(new_ip)).decode()}")
                     if ip.dst == "10.0.0.138":
                         target_mac = getmacbyip("10.0.0.138")  # 获取 10.0.0.138 的 MAC 地址
                     elif ip.dst == "10.2.0.199":
@@ -112,12 +117,11 @@ def packet_callback(packet):
                     else:
                         target_mac = getmacbyip(ip.dst)  # 默认获取 ip.dst 的 MAC 地址
                     # 获取目标 MAC 地址
-                    target_mac = getmacbyip(ip.dst)
                     if target_mac:
-                        print(f"[INFO] 目标 MAC 地址: {target_mac}")
-                        # 获取网络接口并发送原始数据包
+                        print(f"[INFO] 目标 MAC dizhi: {target_mac}")
+                        # 获取网络接口并发送新的数据包
                         iface = conf.iface  # 自动选择网络接口
-                        sendp(Ether(dst=target_mac) / ip, iface=iface, verbose=False)
+                        sendp(Ether(dst=target_mac) / new_ip, iface=iface, verbose=False)
                         print(f"[INFO] 转发数据包到目标 MAC: {target_mac}")
                     else:
                         print(f"[ERROR] 无法获取目标 IP ({ip.dst}) 的 MAC 地址")
