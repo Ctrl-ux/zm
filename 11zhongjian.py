@@ -54,7 +54,7 @@ def parse_modbus_data(packet, sport, dport):
 
             # 解析功能码
             function_code = modbus_data[0]  # 获取功能码
-            print(f"gongnengma: {function_code}")
+            #print(f"gongnengma: {function_code}")
 
             # 根据不同的功能码执行操作
             if function_code == 4:  # 读取保持寄存器 (Read Holding Registers)
@@ -63,7 +63,7 @@ def parse_modbus_data(packet, sport, dport):
                     register_values = modbus_data[2:]  # 寄存器值（后续字节为寄存器值）
 
                     # 输出字节数和寄存器值的十六进制表示
-                    print(f"读取保持寄存器: 字节数: {byte_count}, 寄存器值: {binascii.hexlify(register_values)}")
+                    #print(f"读取保持寄存器: 字节数: {byte_count}, 寄存器值: {binascii.hexlify(register_values)}")
 
                     # 提取寄存器的值（每个寄存器2字节）
                     bb1 = int.from_bytes(register_values[0:2], byteorder='big')  # 温度
@@ -72,7 +72,7 @@ def parse_modbus_data(packet, sport, dport):
 
 
                     b1, b2, b3 = bb1, bb2, bb3
-                    b2 = 55
+                    #b2 = 55
                     # 打印寄存器的值
                     print(f"wendu（K）: {b1}, yali(MN): {b2}, kongqizhiliang: {b3}")
                     #print_data(b1, b2, b3)  # 保存到数据库
@@ -153,7 +153,7 @@ def parse_modbus_data(packet, sport, dport):
                     modbus_tdate = mbap_header  # MBAP header 前 7 字节
                     modbus_tdate += xmodbus_data  # 合并 xmodbus_data 到 modbus_tdate
                     payload = modbus_tdate
-                    print(f"new modbus_zdata: {binascii.hexlify(modbus_tdate)}")
+                    #print(f"new modbus_zdata: {binascii.hexlify(modbus_tdate)}")
                 else:
                     return payload
             elif function_code == 15:  # 写多个离散输出 (Write Multiple Coils)
@@ -189,7 +189,7 @@ def packet_callback(packet):
                 print(f"[INFO] 捕获到目的 MAC 地址是我的数据包: {binascii.hexlify(bytes(packet)).decode()}")
                 # 在这里可以添加其他处理数据包的代码
             else:
-                print(f"[INFO] 捕获到目的 MAC 地址不是我的，跳过此包")
+                #print(f"[INFO] 捕获到目的 MAC 地址不是我的，跳过此包")
                 return
         else:
             print("[INFO] 捕获的不是以太网数据包")
@@ -199,24 +199,24 @@ def packet_callback(packet):
             # 提取 IP 层
             ip = packet[IP]
             #print(f"[INFO] 捕获到 IP 数据包:")
-            print(f" SrcIP: {ip.src}, DstIP: {ip.dst}")
+            #print(f" SrcIP: {ip.src}, DstIP: {ip.dst}")
             #print(f"IP 数据包 (16 进制): {binascii.hexlify(bytes(ip)).decode()}")
 
             # 提取 IP 数据包的负载部分并打印 16 进制
             ip_data = bytes(ip.payload)
-            print(f"IP data: {binascii.hexlify(ip_data).decode()}")
+            #print(f"IP data: {binascii.hexlify(ip_data).decode()}")
 
             # 检查是否包含 TCP 层
             if packet.haslayer(TCP):
                 # 提取 TCP 层
                 tcp = packet[TCP]
                 #print(f"[INFO] 捕获到 TCP 数据包:")
-                print(f"sport: {tcp.sport}, dport: {tcp.dport}")
-                print(f"TCP header : {binascii.hexlify(bytes(tcp)).decode()}")
+                #print(f"sport: {tcp.sport}, dport: {tcp.dport}")
+                #print(f"TCP header : {binascii.hexlify(bytes(tcp)).decode()}")
 
                 # 检查 TCP 数据部分是否为空
                 if len(tcp.payload) > 0:
-                    print(f"TCP date: {binascii.hexlify(bytes(tcp.payload)).decode()}")
+                    #print(f"TCP date: {binascii.hexlify(bytes(tcp.payload)).decode()}")
 
                     tcp.payload = parse_modbus_data(packet, tcp.sport, tcp.dport)
                     # 如果 TCP 数据部分不为空，组合新的 IP 和 TCP 数据包
@@ -228,7 +228,7 @@ def packet_callback(packet):
                     new_ip = new_ip / new_tcp / tcp.payload
 
                     # 输出新的 IP 数据包的 16 进制
-                    print(f"new IP data : {binascii.hexlify(bytes(new_ip)).decode()}")
+                    #print(f"new IP data : {binascii.hexlify(bytes(new_ip)).decode()}")
                     if ip.dst == "10.0.0.156":
                         target_mac = getmacbyip("10.0.0.156")  # 获取 10.0.0.156 的 MAC 地址
                     elif ip.dst == "10.2.1.170":
@@ -246,14 +246,14 @@ def packet_callback(packet):
                         print(f"[ERROR] 无法获取目标 IP ({ip.dst}) 的 MAC 地址")
                 else:
                     # 如果 TCP 数据部分为空，直接使用现有的 IP 和 TCP 数据包
-                    print("[INFO] TCP 数据部分为空，可能是控制包，直接发送原始包")
+                    #print("[INFO] TCP 数据部分为空，可能是控制包，直接发送原始包")
                     new_tcp = TCP(sport=tcp.sport, dport=tcp.dport, seq=tcp.seq, ack=tcp.ack, flags=tcp.flags,
                                   window=tcp.window, chksum=None)  # 复制 TCP 头部
                     new_ip = IP(src=ip.src, dst=ip.dst)  # 新的 IP 数据包
 
                     # 组合新的 IP 数据包和 TCP 数据包
                     new_ip = new_ip / new_tcp / tcp.payload
-                    print(f"new IP data : {binascii.hexlify(bytes(new_ip)).decode()}")
+                    #print(f"new IP data : {binascii.hexlify(bytes(new_ip)).decode()}")
                     if ip.dst == "10.0.0.156":
                         target_mac = getmacbyip("10.0.0.156")  # 获取 10.0.0.156 的 MAC 地址
                     elif ip.dst == "10.2.1.170":
