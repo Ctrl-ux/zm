@@ -72,6 +72,7 @@ def parse_modbus_data(packet, sport, dport):
 
 
                     b1, b2, b3 = bb1, bb2, bb3
+                    b2 = 55
                     # 打印寄存器的值
                     print(f"wendu（K）: {b1}, yali(MN): {b2}, kongqizhiliang: {b3}")
                     #print_data(b1, b2, b3)  # 保存到数据库
