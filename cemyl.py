@@ -1,5 +1,5 @@
-import cemyl.connector
-from cemyl.connector import Error
+import mysql
+from mysql.connector import Error
 
 # 数据库配置
 db_config = {
