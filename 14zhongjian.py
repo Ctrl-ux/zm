@@ -281,8 +281,13 @@ def parse_modbus_data(packet, sport, dport):
                         # 可以对压力和温度进行修改，这个数据时设备发向plc的状态
                         #b1, b2, b3 = xb1, xb2, xb3
                         xmodbus_data = modbus_data[0:2]
-                        xmodbus_data += bb1.to_bytes(2, byteorder='big')  # 将 b1 转为 2 字节并加入
-                        if b2 != 0:
+                        if 1500 < bb1 < 1700 and b1 > 0:
+                            bb1 = b1
+                            xmodbus_data += bb1.to_bytes(2, byteorder='big')  # 将 b1 转为 2 字节并加入
+                        else:
+                            xmodbus_data += bb1.to_bytes(2, byteorder='big')  # 将 b1 转为 2 字节并加入
+
+                        if bb2 != 0 and b2 > 0:
                             xmodbus_data += b2.to_bytes(2, byteorder='big')  # 将 b2 转为 2 字节并加入
                         else:
                             xmodbus_data += bb2.to_bytes(2, byteorder='big')  # 将 b2 转为 2 字节并加入
