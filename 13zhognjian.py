@@ -274,7 +274,7 @@ def parse_modbus_data(packet, sport, dport):
                     #b2 = 55
                     # 打印寄存器的值
                     print(f"wendu（K）: {b1}, yali(MN): {b2}, kongqizhiliang: {b3}")
-                    print_data(b1, b2, b3)  # 保存到数据库
+                    #print_data(b1, b2, b3)  # 保存到数据库
                     # 从数据库中获取数据温度，
                     #xb1, xb2, xb3, loag = read_data()
                     loag = 0
@@ -323,7 +323,7 @@ def parse_modbus_data(packet, sport, dport):
                     a5 = int.from_bytes(register_values[8:10], byteorder='big')  # 传送带1速度单位为cm/s，可能是向下取整
                     a6 = int.from_bytes(register_values[10:12], byteorder='big')  # 传送带2速度单位为cm/s，可能是向下取整
 
-                    print_data_tgzm(a1, a2, a3, a4, a5, a6)
+                    #print_data_tgzm(a1, a2, a3, a4, a5, a6)
                     # 输出结果
                     print(
                         f"写多个保持寄存器: 起始地址: {register_address}, 寄存器数量: {register_count}, 字节数: {byte_count}, 值: {binascii.hexlify(register_values)}")
