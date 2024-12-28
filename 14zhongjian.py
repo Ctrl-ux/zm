@@ -336,6 +336,8 @@ def parse_modbus_data(packet, sport, dport):
                     a6 = int.from_bytes(register_values[10:12], byteorder='big')  # 传送带2速度单位为cm/s，可能是向下取整
                     if a6 > 63000:
                         aa6 = a6 - 65536
+                    else:
+                        aa6 = a6
                     # 创建线程执行 print_data_tgzm
                     print_thread = threading.Thread(target=print_data_tgzm, args=(a1, a2, a3, a4, a5, aa6))
                     print_thread.start()  # 启动线程
