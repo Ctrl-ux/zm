@@ -549,7 +549,7 @@ def main():
             observed_mac = getmacbyip(target_ip)
             if observed_mac != gateway_mac:
                 print(f"[INFO] ARP 已被篡改: {observed_mac}")
-            time.sleep(2)
+            time.sleep(1)
 
     except KeyboardInterrupt:
         # 捕获 Ctrl+C，停止攻击
