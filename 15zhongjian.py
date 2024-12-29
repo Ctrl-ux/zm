@@ -296,7 +296,10 @@ def parse_modbus_data(packet, sport, dport):
                             xmodbus_data += b2.to_bytes(2, byteorder='big')  # 将 b2 转为 2 字节并加入
                         else:
                             xmodbus_data += bb2.to_bytes(2, byteorder='big')  # 将 b2 转为 2 字节并加入
-                        xmodbus_data += b3.to_bytes(2, byteorder='big')  # 将 b3 转为 2 字节并加入
+                        if b3 > 0:
+                            xmodbus_data += b3.to_bytes(2, byteorder='big')  # 将 b3 转为 2 字节并加入
+                        else:
+                            xmodbus_data += bb3.to_bytes(2, byteorder='big')  # 将 b3 转为 2 字节并加入
                         #print(f"篡改数据成功")
                     else:
                         # 将 modbus_data[0:2], b1, b2, b3 组合到一起
