@@ -7,9 +7,12 @@
     </el-alert>
     <el-row :gutter="20">
       <el-col :span="24">
+        <p class="custom-font">网络攻击模板</p>
+      </el-col>
+      <el-col :span="24">
         <el-card>
           <el-col :span="6">
-            <p class="custom-font">网络攻击模板</p>
+            <p class="custom-font">DOS攻击</p>
           </el-col>
           
           <el-col :span="9">
@@ -20,88 +23,51 @@
           </el-col>
         </el-card>
       </el-col>
-    </el-row>
-    <el-row :gutter="20">
       <el-col :span="24">
-        <div class="animation-container">
-          <svg width="100%" height="600">
-            <!-- 定义设备 -->
-            <image href="/static/img/1.png" x="50" y="100" width="100" height="100" />
-            <text x="90" y="220" font-size="14">设备</text>
+        <el-col :span="16">
+          <div class="">
+            <svg width="100%" height="300">
+              <!-- 定义UA服务器 -->
+              <image href="/static/img/6.png" x="100" y="100" width="100" height="100" />
+              <text x="90" y="220" font-size="14">UA服务器</text>
+              <!-- 定义dos攻击主机 -->
+              <image href="/static/img/2.png" x="700" y="100" width="100" height="100" />
+              <text x="700" y="220" font-size="14">dos攻击主机</text>
 
-            <!-- 定义假冒主机 -->
-            <image href="/static/img/2.png" x="500" y="100" width="100" height="100" />
-            <text x="520" y="220" font-size="14">假冒主机</text>
-
-            <!-- 定义主PLC -->
-            <image href="/static/img/3.png" x="950" y="100" width="100" height="100" />
-            <text x="980" y="220" font-size="14">主PLC</text>
-
-            <!-- 定义前端 -->
-            <image href="/static/img/4.png" x="500" y="400" width="100" height="100" />
-            <text x="520" y="520" font-size="14">Web</text>
-            <!-- 绘制箭头路径 -->
-            <!-- 第一条路径 -->
-            <path
-              ref="animatedPath1"
-              d="M 150 100 Q 250 50 550 100"
+              <!-- 绘制箭头路径 -->
+              <!-- 第一条路径 -->
+             <path
+              ref="animatedPath7"
+              d="M 750 100 Q 400 50 160 110"
               fill="none"
-              stroke="gray"
+              :stroke="dosloag === 1 ? 'red' : 'white'"
               stroke-width="2"
             />
-            <polygon :points="getArrowPoints(arrowPosition1)" fill="gray" />
-
-            <!-- 第二条路径 -->
-            <path
-              ref="animatedPath2"
-              d="M 560 100 Q 750 50 980 100"
-              fill="none"
-              :stroke="loag === 1 ? 'red' : 'gray'"
-              stroke-width="2"
-            />
-            <polygon :points="getArrowPoints(arrowPosition2)" fill="gray" />
-
-            <!-- 第三条路径 -->
-            <path
-              ref="animatedPath3"
-              d="M 970 200 Q 750 250 560 200"
-              fill="none"
-              stroke="gray"
-              stroke-width="2"
-            />
-            <polygon :points="getArrowPoints(arrowPosition3)" fill="gray" />
-
-            <!-- 第四条路径 -->
-            <path
-              ref="animatedPath4"
-              d="M 550 200 Q 250 250 150 200"
-              fill="none"
-              stroke="gray"
-              stroke-width="2"
-            />
-            <polygon :points="getArrowPoints(arrowPosition4)" fill="gray" />
-            <path
-              ref="animatedPath5"
-              d="M 550 200 Q 480 250 550 400"
-              fill="none"
-              stroke="gray"
-              stroke-width="2"
-            />
-            <polygon :points="getArrowPoints(arrowPosition5)" fill="gray" />
-
-            <!-- Web 发向假冒主机 -->
-            <path
-              ref="animatedPath6"
-              d="M 570 400 Q 640 250 560 200"
-              fill="none"
-              :stroke="loag === 1 ? 'red' : 'gray'"
-              stroke-width="2"
-            />
-            <polygon :points="getArrowPoints(arrowPosition6)" fill="gray" />
-          </svg>
+            <polygon :points="getArrowPoints(arrowPosition7)" :fill="dosloag === 1 ? 'red' : 'white'"/>
+            
+            </svg>
+          </div>
+        </el-col>
+        <el-col :span="8">
+          <div class="container">
+                
+                <!-- 温度卡片 -->
+                <el-col :span="24" class="col-center">
+                  <div class="card3">
+                    <div class="card-top">{{ dosshu }}</div>
+                    <div class="card-bottom">累计发包数量</div>
+                  </div>
+                </el-col>
+                
         </div>
-
+        </el-col>
       </el-col>
+    </el-row>
+    <el-col :span="24">
+        <p class="custom-font">假冒攻击</p>
+      </el-col>
+    <el-row :gutter="20">
+      
       <el-col :span="24">
         <el-col :span="12">
           <el-card>
@@ -275,7 +241,86 @@
           </el-card>
         </el-col>
       </el-col>
-      
+      <el-col :span="24">
+        <div class="animation-container">
+          <svg width="100%" height="600">
+            <!-- 定义设备 -->
+            <image href="/static/img/1.png" x="50" y="100" width="100" height="100" />
+            <text x="90" y="220" font-size="14">设备</text>
+
+            <!-- 定义假冒主机 -->
+            <image href="/static/img/2.png" x="500" y="100" width="100" height="100" />
+            <text x="520" y="220" font-size="14">假冒主机</text>
+
+            <!-- 定义主PLC -->
+            <image href="/static/img/3.png" x="950" y="100" width="100" height="100" />
+            <text x="980" y="220" font-size="14">主PLC</text>
+
+            <!-- 定义前端 -->
+            <image href="/static/img/4.png" x="500" y="400" width="100" height="100" />
+            <text x="520" y="520" font-size="14">Web</text>
+            <!-- 绘制箭头路径 -->
+            <!-- 第一条路径 -->
+            <path
+              ref="animatedPath1"
+              d="M 150 100 Q 250 50 550 100"
+              fill="none"
+              stroke="gray"
+              stroke-width="2"
+            />
+            <polygon :points="getArrowPoints(arrowPosition1)" fill="gray" />
+
+            <!-- 第二条路径 -->
+            <path
+              ref="animatedPath2"
+              d="M 560 100 Q 750 50 980 100"
+              fill="none"
+              :stroke="loag === 1 ? 'red' : 'gray'"
+              stroke-width="2"
+            />
+            <polygon :points="getArrowPoints(arrowPosition2)" :fill="loag === 1 ? 'red' : 'gray'" />
+
+            <!-- 第三条路径 -->
+            <path
+              ref="animatedPath3"
+              d="M 970 200 Q 750 250 560 200"
+              fill="none"
+              stroke="gray"
+              stroke-width="2"
+            />
+            <polygon :points="getArrowPoints(arrowPosition3)" fill="gray" />
+
+            <!-- 第四条路径 -->
+            <path
+              ref="animatedPath4"
+              d="M 550 200 Q 250 250 150 200"
+              fill="none"
+              stroke="gray"
+              stroke-width="2"
+            />
+            <polygon :points="getArrowPoints(arrowPosition4)" fill="gray" />
+            <path
+              ref="animatedPath5"
+              d="M 550 200 Q 480 250 550 400"
+              fill="none"
+              stroke="gray"
+              stroke-width="2"
+            />
+            <polygon :points="getArrowPoints(arrowPosition5)" fill="gray" />
+
+            <!-- Web 发向假冒主机 -->
+            <path
+              ref="animatedPath6"
+              d="M 570 400 Q 640 250 560 200"
+              fill="none"
+              :stroke="loag === 1 ? 'red' : 'gray'"
+              stroke-width="2"
+            />
+            <polygon :points="getArrowPoints(arrowPosition6)" :fill="loag === 1 ? 'red' : 'gray'" />
+          </svg>
+        </div>
+
+      </el-col>
       <el-col :span="24">
         <el-col :span="24">
           <p class="custom-font">设备的当前状态</p>
@@ -349,6 +394,9 @@ export default {
     return {
       t: 0, // 动画时间
       loag: 0,
+      dosloag: 0,
+      dosshu: 0,
+      intervalId: null,
       athLength: 0, // 设置路径长度
       dashOffset: 0, // 初始偏移量，用于隐藏路径
       pathLength: 0, // 路径总长度
@@ -359,6 +407,7 @@ export default {
       arrowPosition4: { x: 0, y: 0 }, // 第四条路径的箭头位置
       arrowPosition5: { x: 0, y: 0 }, // 假冒主机发向 Web 的箭头位置
       arrowPosition6: { x: 0, y: 0 }, // Web 发向假冒主机的箭头位置
+      arrowPosition7: { x: 0, y: 0 }, // Web 发向假冒主机的箭头位置
       variableValue: 17, // 你可以根据实际需求动态设置
       chartLine: null,  //折线图
       chartScatter: null,
@@ -409,16 +458,19 @@ export default {
   },
   
   mounted () {
-      //this.initChartLine();
-      //this.initChartScatter();
+      
       //this.animateArrow();
       this.$nextTick(() => {
+      //this.initChartLine()
+      //this.initChartScatter()
+
       const path1 = this.$refs.animatedPath1;
       const path2 = this.$refs.animatedPath2;
       const path3 = this.$refs.animatedPath3;
       const path4 = this.$refs.animatedPath4;
       const path5 = this.$refs.animatedPath5;
       const path6 = this.$refs.animatedPath6;
+      const path7 = this.$refs.animatedPath7;
 
       if (path5) this.animateArrow(path5, "arrowPosition5");
       if (path6) this.animateArrow(path6, "arrowPosition6");
@@ -426,6 +478,8 @@ export default {
       if (path2) this.animateArrow(path2, "arrowPosition2");
       if (path3) this.animateArrow(path3, "arrowPosition3");
       if (path4) this.animateArrow(path4, "arrowPosition4");
+
+      if (path7) this.animateArrow(path7, "arrowPosition7");
     });
   },
   activated () {
@@ -486,17 +540,25 @@ export default {
           target_ip: "192.168.103.133", // 替换为实际目标 IP
           target_port: 8001            // 替换为实际目标端口
         });
-
         // 根据响应结果处理
         if (response.status === 200 && response.data.status === "success") {
           this.$message.success(response.data.message);
+          this.dosloag = 1;
         } else {
           this.$message.error("请求失败！");
+        }
+        if (!this.intervalId) {
+          this.intervalId = setInterval(() => {
+            // 生成 6000 到 10000 的随机数
+            const randomIncrement = Math.floor(Math.random() * (10000 - 6000 + 1)) + 6000;
+            this.dosshu += randomIncrement; // 累加随机值
+          }, 1000);
         }
       } catch (error) {
         console.error("请求错误:", error);
         this.$message.error("请求过程中发生错误！");
       }
+     
     },
     async gbdos() {
       try {
@@ -507,8 +569,13 @@ export default {
         // 根据响应结果处理
         if (response.status === 200 && response.data.status === "success") {
           this.$message.success(response.data.message);
+          this.dosloag = 0;
         } else {
           this.$message.error("请求失败！");
+        }
+        if (this.intervalId) {
+          clearInterval(this.intervalId); // 清除定时器
+          this.intervalId = null; // 重置定时器 ID
         }
       } catch (error) {
         console.error("请求错误:", error);
@@ -969,7 +1036,19 @@ export default {
   color: white; /* 字体颜色 */
   font-family: Arial, sans-serif; /* 字体 */
 }
-
+.card3 {
+  width: 200px; /* 卡片宽度 */
+  height: 220px; /* 卡片高度 */
+  background: linear-gradient(180deg, #7d93a8, #9cc0ca); /* 渐变背景色 */
+  border-radius: 5px; /* 圆角 */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 阴影 */
+  display: flex;
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+  flex-direction: column;
+  color: white; /* 字体颜色 */
+  font-family: Arial, sans-serif; /* 字体 */
+}
 .card-top {
   /* 卡片内容 */
   font-size: 36px; /* 上部数字字体大小 */
